@@ -6,60 +6,40 @@ import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 const Scroll = () => {
   useEffect(() => {
+    // Setup
+    // const scroller = document.querySelector('.scroller');
 
+    const fixedElem = document.getElementsByClassName("fixed-nav")[0];
 
-// Setup
-// const scroller = document.querySelector('.scroller');
+    const bodyScrollBar = Scrollbar.init(document.body, {
+      damping: 0.07,
+      delegateTo: document,
+      alwaysShowTracks: true,
+    });
 
-const bodyScrollBar = Scrollbar.init(document.body, { damping: 0.07, delegateTo: document, alwaysShowTracks: true });
-// speed: 1
-ScrollTrigger.scrollerProxy("body", {
-  scrollTop(value) {
-    if (arguments.length) {
-      bodyScrollBar.scrollTop = value;
-    }
-    return bodyScrollBar.scrollTop;
-  }
-});
+    bodyScrollBar.addListener((status) => {
+      const offset = status.offset;
+      fixedElem.style.top = offset.y + "px";
 
-bodyScrollBar.addListener(ScrollTrigger.update);
+      const markers = gsap.utils.toArray('[class *= "gsap-marker"]');
+      if (markers) {
+        gsap.set(markers, { marginTop: -offset.y + "px" });
+      }
+    });
 
-ScrollTrigger.defaults({ scroller: document.body });
+    // speed: 1
+    ScrollTrigger.scrollerProxy("body", {
+      scrollTop(value) {
+        if (arguments.length) {
+          bodyScrollBar.scrollTop = value;
+        }
+        return bodyScrollBar.scrollTop;
+      },
+    });
 
-// Only necessary to correct marker position - not needed in production
-if (document.querySelector('.gsap-marker-scroller-start')) {	
-  console.log("AAAAAA")	
-  const markers = gsap.utils.toArray('[class *= "gsap-marker"]');	
+    bodyScrollBar.addListener(ScrollTrigger.update);
 
-  bodyScrollBar.addListener(({ offset }) => {  
-    gsap.set(markers, { marginTop: -offset.y })
-  });
-}
-
-
-    // const bodyScrollBar = Scrollbar.init(document.body, {
-    //   speed: 0.2,
-    //   delegateTo: document,
-    //   damping: 0.1,
-    // });
-
-    // bodyScrollBar.setPosition(0, 0);
-    // bodyScrollBar.track.xAxis.element.remove();
-    // ScrollTrigger.scrollerProxy("body", {
-    //   scrollTop(value) {
-    //     if (arguments.length) {
-    //       bodyScrollBar.scrollTop = value;
-    //     }
-    //     return bodyScrollBar.scrollTop;
-    //   },
-    // });
-    // bodyScrollBar.addListener(ScrollTrigger.update);
-
-    // ScrollTrigger.defaults({ scroller: document.body });
-
-
-
-
+    ScrollTrigger.defaults({ scroller: document.body });
   }, []);
 
   return null;
